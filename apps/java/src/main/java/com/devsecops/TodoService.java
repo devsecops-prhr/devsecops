@@ -18,13 +18,13 @@ public class TodoService {
     }
 
     public Todo create(String title) {
-        Todo todo = new Todo(title, false);
+        final Todo todo = new Todo(title, false);
         store.put(todo.getId(), todo);
         return todo;
     }
 
     public Todo updateCompleted(String id, boolean completed) {
-        Todo todo = store.get(id);
+        final Todo todo = store.get(id);
         if (todo == null) {
             return null;
         }

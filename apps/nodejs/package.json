@@ -5,13 +5,18 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest --ci --coverage"
+    "test": "jest --ci --coverage",
+    "lint": "eslint server.js test",
+    "format": "prettier --write server.js test",
+    "format:check": "prettier --check server.js test"
   },
   "dependencies": {
     "express": "^4.19.2"
   },
   "devDependencies": {
+    "eslint": "^8.57.0",
     "jest": "^29.7.0",
+    "prettier": "^3.3.2",
     "supertest": "^7.0.0"
   },
   "engines": {

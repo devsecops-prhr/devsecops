@@ -49,7 +49,12 @@ app.post("/todos", (req, res) => {
     return res.status(400).json({ error });
   }
   const id = crypto.randomUUID();
-  const todo = { id, title: title.trim(), completed: false, createdAt: new Date().toISOString() };
+  const todo = {
+    id,
+    title: title.trim(),
+    completed: false,
+    createdAt: new Date().toISOString(),
+  };
   todos.set(id, todo);
   res.status(201).json(todo);
 });
@@ -62,7 +67,9 @@ app.patch("/todos/:id", (req, res) => {
   const { completed, title } = req.body || {};
   if (completed !== undefined) {
     if (typeof completed !== "boolean") {
-      return res.status(400).json({ error: "O campo 'completed' deve ser booleano" });
+      return res
+        .status(400)
+        .json({ error: "O campo 'completed' deve ser booleano" });
     }
     todo.completed = completed;
   }

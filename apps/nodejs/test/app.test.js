@@ -12,7 +12,9 @@ describe("Node.js app - health", () => {
 
 describe("Node.js app - todos CRUD", () => {
   it("cria uma tarefa", async () => {
-    const res = await request(app).post("/todos").send({ title: "Estudar Actions" });
+    const res = await request(app)
+      .post("/todos")
+      .send({ title: "Estudar Actions" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
     expect(res.body.title).toBe("Estudar Actions");
@@ -34,7 +36,9 @@ describe("Node.js app - todos CRUD", () => {
   });
 
   it("valida título muito longo", async () => {
-    const res = await request(app).post("/todos").send({ title: "x".repeat(121) });
+    const res = await request(app)
+      .post("/todos")
+      .send({ title: "x".repeat(121) });
     expect(res.status).toBe(400);
   });
 
@@ -44,14 +48,20 @@ describe("Node.js app - todos CRUD", () => {
   });
 
   it("marca tarefa como concluída", async () => {
-    const created = await request(app).post("/todos").send({ title: "Fazer X" });
-    const res = await request(app).patch(`/todos/${created.body.id}`).send({ completed: true });
+    const created = await request(app)
+      .post("/todos")
+      .send({ title: "Fazer X" });
+    const res = await request(app)
+      .patch(`/todos/${created.body.id}`)
+      .send({ completed: true });
     expect(res.status).toBe(200);
     expect(res.body.completed).toBe(true);
   });
 
   it("remove uma tarefa", async () => {
-    const created = await request(app).post("/todos").send({ title: "Remover" });
+    const created = await request(app)
+      .post("/todos")
+      .send({ title: "Remover" });
     const res = await request(app).delete(`/todos/${created.body.id}`);
     expect(res.status).toBe(204);
   });

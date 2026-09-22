@@ -1,0 +1,86 @@
+name: QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: nodejs
+            working-directory: apps/nodejs
+            language: node
+          - name: flask
+            working-directory: apps/flask
+            language: python
+          - name: java
+            working-directory: apps/java
+            language: java
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: matrix.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+          cache-dependency-path: apps/nodejs/package-lock.json
+
+      - name: Setup Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: apps/flask/requirements.txt
+
+      - name: Setup Java
+        if: matrix.language == 'java'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Install Node.js dependencies
+        if: matrix.language == 'node'
+        working-directory: apps/nodejs
+        run: npm install
+
+      - name: ESLint (Node.js)
+        if: matrix.language == 'node'
+        working-directory: apps/nodejs
+        run: npm run lint
+
+      - name: Prettier check (Node.js)
+        if: matrix.language == 'node'
+        working-directory: apps/nodejs
+        run: npm run format:check
+
+      - name: Install Python QA tools
+        if: matrix.language == 'python'
+        working-directory: apps/flask
+        run: pip install -r requirements.txt
+
+      - name: Black check (Flask)
+        if: matrix.language == 'python'
+        working-directory: apps/flask
+        run: black --check .
+
+      - name: Flake8 (Flask)
+        if: matrix.language == 'python'
+        working-directory: apps/flask
+        run: flake8 .
+
+      - name: Checkstyle (Java)
+        if: matrix.language == 'java'
+        working-directory: apps/java
+        run: mvn -B checkstyle:check

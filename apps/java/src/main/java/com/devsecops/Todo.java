@@ -15,7 +15,8 @@ public class Todo {
             throw new IllegalArgumentException("O campo 'title' não pode ser vazio");
         }
         if (title.length() > MAX_TITLE_LENGTH) {
-            throw new IllegalArgumentException("O campo 'title' deve ter no máximo " + MAX_TITLE_LENGTH + " caracteres");
+            throw new IllegalArgumentException(
+                "O campo 'title' deve ter no máximo " + MAX_TITLE_LENGTH + " caracteres");
         }
         this.id = UUID.randomUUID().toString();
         this.title = title;
