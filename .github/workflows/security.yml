@@ -1,0 +1,82 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  gitleaks:
+    name: Secret scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependency-check:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dir: apps/nodejs
+            cmd: npm audit --audit-level=high
+          - dir: apps/flask
+            cmd: pip-audit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        if: contains(matrix.dir, 'nodejs')
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Setup Python
+        if: contains(matrix.dir, 'flask')
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run audit (${{ matrix.dir }})
+        working-directory: ${{ matrix.dir }}
+        run: |
+          if [[ "${{ matrix.cmd }}" == npm* ]]; then
+            npm install
+            npm audit --audit-level=high
+          else
+            pip install -r requirements.txt
+            pip install pip-audit
+            pip-audit
+          fi
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript, python, java-kotlin]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
