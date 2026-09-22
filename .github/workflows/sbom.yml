@@ -1,0 +1,53 @@
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    name: Generate and audit SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (gera package-lock se necessário)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+          cache-dependency-path: apps/nodejs/package-lock.json
+      - name: Install Node dependencies
+        working-directory: apps/nodejs
+        run: npm install
+
+      - name: Generate SBOMs with Syft (Docker)
+        run: |
+          mkdir -p dist
+          docker run --rm -v "$PWD":/scan -w /scan anchore/syft:latest \
+            dir:apps/nodejs -o cyclonedx-json > dist/nodejs-sbom.json
+          docker run --rm -v "$PWD":/scan -w /scan anchore/syft:latest \
+            dir:apps/flask -o cyclonedx-json > dist/flask-sbom.json
+          docker run --rm -v "$PWD":/scan -w /scan anchore/syft:latest \
+            dir:apps/java -o cyclonedx-json > dist/java-sbom.json
+          echo "--- SBOMs gerados ---"
+          ls -lh dist
+
+      - name: Audit SBOMs with Grype (Docker)
+        run: |
+          for sbom in dist/*-sbom.json; do
+            echo "== Auditando $sbom =="
+            docker run --rm -v "$PWD":/scan -w /scan anchore/grype:latest \
+              sbom:${sbom} --fail-on high -o table || true
+          done
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sboms
+          path: dist/*-sbom.json
+          retention-days: 7

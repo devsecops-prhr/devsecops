@@ -54,6 +54,29 @@ cd apps/java
 mvn test
 ```
 
+## SBOM (Software Bill of Materials)
+
+O workflow `sbom.yml` gera o inventário de dependências dos 3 apps (formato **CycloneDX**) usando o [Syft](https://github.com/anchore/syft) e depois audita CVEs com o [Grype](https://github.com/anchore/grype).
+
+**Para gerar manualmente:**
+```bash
+# Node.js
+docker run --rm -v "$PWD/apps/nodejs":/scan -w /scan anchore/syft:latest dir:. -o cyclonedx-json > nodejs-sbom.json
+
+# Flask (Python)
+docker run --rm -v "$PWD/apps/flask":/scan -w /scan anchore/syft:latest dir:. -o cyclonedx-json > flask-sbom.json
+
+# Java
+docker run --rm -v "$PWD/apps/java":/scan -w /scan anchore/syft:latest dir:. -o cyclonedx-json > java-sbom.json
+```
+
+**Para auditar vulnerabilidades de um SBOM:**
+```bash
+docker run --rm -v "$PWD":/scan -w /scan anchore/grype:latest sbom:nodejs-sbom.json --fail-on high -o table
+```
+
+> Nota de estudo: para Python/Java o Syft lê apenas as dependências de primeiro nível dos manifestos. Para um SBOM transitivo completo, instale/build as dependências antes (ex.: `pip install -r requirements.txt` ou `mvn dependency:tree`).
+
 ## Licença
 
 MIT
