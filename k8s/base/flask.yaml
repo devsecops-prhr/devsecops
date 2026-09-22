@@ -20,7 +20,7 @@ spec:
         fsGroup: 2000
       containers:
         - name: flask
-          image: ghcr.io/PLACEHOLDER_OWNER/devsecops-flask:latest
+          image: ghcr.io/devsecops-prhr/devsecops-flask:latest
           ports:
             - containerPort: 5000
           securityContext:

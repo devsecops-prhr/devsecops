@@ -20,7 +20,7 @@ spec:
         fsGroup: 2000
       containers:
         - name: nodejs
-          image: ghcr.io/PLACEHOLDER_OWNER/devsecops-nodejs:latest
+          image: ghcr.io/devsecops-prhr/devsecops-nodejs:latest
           ports:
             - containerPort: 3000
           securityContext:

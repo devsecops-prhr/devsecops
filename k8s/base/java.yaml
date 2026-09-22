@@ -20,7 +20,7 @@ spec:
         fsGroup: 2000
       containers:
         - name: java
-          image: ghcr.io/PLACEHOLDER_OWNER/devsecops-java:latest
+          image: ghcr.io/devsecops-prhr/devsecops-java:latest
           args: ["sleep", "infinity"]
           securityContext:
             runAsNonRoot: true

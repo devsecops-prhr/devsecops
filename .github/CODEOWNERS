@@ -1,0 +1,14 @@
+# Arquivos padrão (revisão obrigatória do mantenedor)
+/.github/             @devsecops-prhr
+README.md             @devsecops-prhr
+CONTRIBUTING.md       @devsecops-prhr
+SECURITY.md           @devsecops-prhr
+
+# Aplicações
+/apps/nodejs/         @devsecops-prhr
+/apps/flask/          @devsecops-prhr
+/apps/java/           @devsecops-prhr
+
+# Infraestrutura
+/k8s/                 @devsecops-prhr
+/docs/                @devsecops-prhr

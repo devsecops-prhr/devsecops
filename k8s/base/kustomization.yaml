@@ -7,12 +7,12 @@ resources:
   - flask.yaml
   - java.yaml
 images:
-  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-nodejs
-    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-nodejs
+  - name: ghcr.io/devsecops-prhr/devsecops-nodejs
+    newName: ghcr.io/devsecops-prhr/devsecops-nodejs
     newTag: latest
-  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-flask
-    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-flask
+  - name: ghcr.io/devsecops-prhr/devsecops-flask
+    newName: ghcr.io/devsecops-prhr/devsecops-flask
     newTag: latest
-  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-java
-    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-java
+  - name: ghcr.io/devsecops-prhr/devsecops-java
+    newName: ghcr.io/devsecops-prhr/devsecops-java
     newTag: latest
