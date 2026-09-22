@@ -2,18 +2,11 @@ package com.devsecops;
 
 public class App {
 
-    public static final String SERVICE = "java";
-
-    public String healthStatus() {
-        return "ok";
-    }
-
-    public String greeting() {
-        return "DevSecOps Java app";
-    }
-
     public static void main(String[] args) {
-        App app = new App();
-        System.out.println("Service: " + SERVICE + " - status: " + app.healthStatus());
+        TodoService service = new TodoService();
+        Todo todo = service.create("Estudar GitHub Actions");
+        System.out.println("Criada tarefa: " + todo.getTitle() + " (id=" + todo.getId() + ")");
+        service.updateCompleted(todo.getId(), true);
+        System.out.println("Concluída: " + service.findById(todo.getId()).isCompleted());
     }
 }
