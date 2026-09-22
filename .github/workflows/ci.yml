@@ -5,9 +5,19 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -21,7 +31,6 @@ jobs:
           - name: java
             working-directory: apps/java
             language: java
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,6 +69,14 @@ jobs:
         working-directory: apps/nodejs
         run: npm test
 
+      - name: Upload Node.js coverage
+        if: matrix.language == 'node'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-nodejs
+          path: apps/nodejs/coverage/lcov.info
+          retention-days: 7
+
       - name: Install Python dependencies
         if: matrix.language == 'python'
         working-directory: apps/flask
@@ -68,9 +85,25 @@ jobs:
       - name: Run Python tests
         if: matrix.language == 'python'
         working-directory: apps/flask
-        run: pytest -v
+        run: pytest --cov=app --cov-fail-under=70 -v
+
+      - name: Upload Python coverage
+        if: matrix.language == 'python'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-flask
+          path: apps/flask/.coverage
+          retention-days: 7
 
       - name: Run Java tests
         if: matrix.language == 'java'
         working-directory: apps/java
-        run: mvn -B test
+        run: mvn -B verify
+
+      - name: Upload Java coverage
+        if: matrix.language == 'java'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-java
+          path: apps/java/target/site/jacoco/jacoco.xml
+          retention-days: 7

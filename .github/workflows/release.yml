@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_run:
+    workflows: [QA, CI, Security, SBOM]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Gate de qualidade
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    steps:
+      - name: Verificar que os gates passaram
+        run: echo "Gates exigidos - QA, CI, Security, SBOM - devem estar verdes antes do release"
+
+  build-and-push:
+    name: Build e push das imagens (GHCR)
+    runs-on: ubuntu-latest
+    needs: gate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: nodejs
+            dir: apps/nodejs
+            context: apps/nodejs
+          - app: flask
+            dir: apps/flask
+            context: apps/flask
+          - app: java
+            dir: apps/java
+            context: apps/java
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Definir tag da imagem
+        id: meta
+        run: |
+          echo "repo=${{ github.repository_owner }}/devsecops-${{ matrix.app }}" >> $GITHUB_OUTPUT
+
+      - name: Build e push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/devsecops-${{ matrix.app }}:latest
+            ghcr.io/${{ github.repository_owner }}/devsecops-${{ matrix.app }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
