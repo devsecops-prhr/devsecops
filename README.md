@@ -77,6 +77,26 @@ docker run --rm -v "$PWD":/scan -w /scan anchore/grype:latest sbom:nodejs-sbom.j
 
 > Nota de estudo: para Python/Java o Syft lê apenas as dependências de primeiro nível dos manifestos. Para um SBOM transitivo completo, instale/build as dependências antes (ex.: `pip install -r requirements.txt` ou `mvn dependency:tree`).
 
+## Deploy por ambientes (dev / staging / prod)
+
+O workflow `release.yml` promove as imagens pelos três ambientes em sequência:
+
+```
+build (GHCR) → deploy-dev → deploy-staging → deploy-prod (aprovação manual)
+```
+
+Cada ambiente é um [GitHub Environment](https://docs.github.com/actions/deployment/using-environments-for-deployment) apontando para um **namespace** do cluster (manifests em `k8s/overlays/<ambiente>`, usando Kustomize).
+
+### Configuração manual necessária (uma vez)
+
+1. **Criar os environments** em `Settings → Environments`: `dev`, `staging`, `production`.
+2. **Em `production`**, adicionar **Required reviewers** (você mesmo) — isso bloqueia o deploy até aprovação humana.
+3. **Criar os secrets** em `Settings → Secrets and variables → Actions`:
+   - `KUBECONFIG` — conteúdo do kubeconfig de acesso ao cluster
+   - `K8S_CONTEXT` — nome do contexto a usar (ex.: `control-plane`)
+
+> Sem o lab K8s montado, os jobs `deploy-*` ainda não têm onde aplicar os manifests. O passo a passo de subida do cluster fica para a etapa do lab.
+
 ## Licença
 
 MIT

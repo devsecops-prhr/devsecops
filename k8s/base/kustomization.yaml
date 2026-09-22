@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+resources:
+  - namespaces.yaml
+  - nodejs.yaml
+  - flask.yaml
+  - java.yaml
+images:
+  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-nodejs
+    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-nodejs
+    newTag: latest
+  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-flask
+    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-flask
+    newTag: latest
+  - name: ghcr.io/PLACEHOLDER_OWNER/devsecops-java
+    newName: ghcr.io/PLACEHOLDER_OWNER/devsecops-java
+    newTag: latest
