@@ -11,7 +11,7 @@
     "format:check": "prettier --check server.js test"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
